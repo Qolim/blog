@@ -1,7 +1,7 @@
 /*
  * @Author: LimingQi
  * @Date: 2021-03-05 03:52:00
- * @LastEditTime: 2021-03-05 05:45:51
+ * @LastEditTime: 2021-03-05 08:49:39
  * @LastEditors: LimingQi
  * @Description:webpack配置文件
  * @FilePath: /webpack-init/webpack.config.js
@@ -16,10 +16,12 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   entry: {
-    index: "./src/index.js" //入口文件index 可配置多个
+    index: "./src/index.tsx" //入口文件index 可配置多个
   },
+  // entry: "./src/index.tsx",
+  devtool: 'inline-source-map',
   output: {
-    filename: "[name].[hash:16].js", //出口文件 [name]对映入口文件的key [hash]计算文件唯一性
+    filename: "index.[hash:16].js", //出口文件 [name]对映入口文件的key [hash]计算文件唯一性
     path: path.resolve(__dirname, "dist") //打包到文件地址
   },
   devServer: { //开发服务器配置 依赖包webpack-dev-server
@@ -77,6 +79,22 @@ module.exports = {
           }
         ]
       },
+      {
+        test: /\.(js|jsx)$/,
+        use: [
+          {
+            loader: "babel-loader",//babel-loader babel配置见.babelrc 依赖包  babel-loader @babel/core @babel/preset-env
+          }
+        ],
+        exclude: /node_modules/,//排除文件
+      },
+      {
+        test: /\.tsx?$/,
+        use: [
+          { loader: "ts-loader" } //ts-loader ts配置见tsconfig.json 依赖typescript ts-loader
+        ],
+        exclude: /node_modules/,//排除文件
+      }
     ]
   },
   optimization: {//代码压缩
@@ -84,6 +102,9 @@ module.exports = {
     minimizer: [
       new CssMinimizerWebpackPlugin()//css代码压缩
     ]
-  }
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+  },
 
 }
