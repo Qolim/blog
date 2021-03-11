@@ -1,172 +1,110 @@
 /*
  * @Author: LimingQi
- * @Date: 2021-03-03 21:39:16
- * @LastEditTime: 2021-03-05 00:43:40
+ * @Date: 2021-03-05 03:52:00
+ * @LastEditTime: 2021-03-05 08:49:39
  * @LastEditors: LimingQi
- * @Description: webpack配置
- * @FilePath: /notes/webpack/webpack.config.js
+ * @Description:webpack配置文件
+ * @FilePath: /webpack-init/webpack.config.js
  * Github: https://github.com/Qolim
  */
-
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+const path = require("path");
+const CleanWebpackPlugin = require("clean-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerWebpackPlugin = require("css-minimizer-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-
-  // 入口文件 字符串 数组 对象
-  // entry: "./src/index.js",
-  // entry: ["./src/index.js"],
   entry: {
-    index: "./src/index.js"
+    index: "./src/index.tsx" //入口文件index 可配置多个
   },
-
-  // 打包文件配置
+  // entry: "./src/index.tsx",
+  devtool: 'inline-source-map',
   output: {
-    //文件名 (若需要多个打包文件 [name] name呆滞entry对象的key)
-    filename: "[name].[hash:8].js",
-    //打包地址
-    path: path.resolve(__dirname, 'build')
+    filename: "index.[hash:16].js", //出口文件 [name]对映入口文件的key [hash]计算文件唯一性
+    path: path.resolve(__dirname, "dist") //打包到文件地址
   },
-
-  //开发服务器配置
-  devServer: {
-    //端口
-    port: 3001,
-    //服务器入口目录 （一般即打包文件夹）
-    contentBase: path.resolve(__dirname, 'build'),
-    //是否进行服务器压缩
-    compress: true,
-    //是否自动打开浏览器
-    open: true,
-    //是否热跟新
-    hot: true
+  devServer: { //开发服务器配置 依赖包webpack-dev-server
+    port: 3021, //本地开发服务器端口号
+    contentBase: path.resolve(__dirname, "dist"), //服务器静态资源路径
+    hot: true,//是否热更新 入口js文件配合module.hot.accept()使用
+    open: true,//是否自动打开浏览器
+    compress: true,//是否精简服务器资源
   },
-
-  //模块配置 （loader）
+  plugins: [
+    new CleanWebpackPlugin.CleanWebpackPlugin(),//打包前清除原打包文件 依赖包clean-webpack-plugin
+    new CopyWebpackPlugin({ patterns: [{ from: path.resolve(__dirname, "src/public"), to: path.resolve(__dirname, "dist/public") }] }),//资源文件拷贝插件 依赖包copy-webpack-plugin
+    new MiniCssExtractPlugin({ filename: "index.css" }),//分离css文件 依赖包mini-css-extract-plugin
+    new HtmlWebpackPlugin({//html打包插件 依赖包html-webpack-plugin
+      template: path.resolve(__dirname, "src/index.html"),//模版html
+      title: "webpack@5.0基础配置",//html标题
+      inject: "body",//script标签插入位置
+      hash: true,//引入js是否附带hash清除缓存
+      chunks: "['index']",//引入的js文件 对映入口文件的key
+      minify: {//html文件压缩
+        collapseWhitespace: true,//空格合并
+        removeAttributeQuotes: true,//移除属性引号
+      }
+    })
+  ],
   module: {
-    rules: [
-      //css配置
+    rules: [//loader
       {
         test: /\.css$/,
         use: [
-          // {
-          //   loader: "style-loader"
-          // },
-          //配置css分离
-          {
-            loader: MiniCssExtractPlugin.loader,
-          },
-          {
-            loader: "css-loader"
-          },
-          // 配置css前缀
-          {
-            loader: "postcss-loader"
-          },
+          // { loader: "style-loader" },//依赖style-loader
+          { loader: MiniCssExtractPlugin.loader },
+          { loader: "css-loader" },//依赖包css-loader
         ]
       },
-      //less配置
       {
         test: /\.less$/,
         use: [
-          // {
-          //   loader: "style-loader"
-          // },
-          //配置css分离
+          // { loader: "style-loader" },
+          { loader: MiniCssExtractPlugin.loader },
+          { loader: "css-loader" },
+          { loader: "less-loader" },//依赖包less-loader
+        ]
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        use: [
           {
-            loader: MiniCssExtractPlugin.loader,
-          },
-          {
-            loader: "css-loader"
-          },
-          // 配置css前缀
-          {
-            loader: "postcss-loader"
-          },
-          //配置less-loader
-          {
-            loader: "less-loader"
+            loader: "url-loader",//图片引入loader 依赖包url-loader file-loader
+            options: {
+              limit: 10,//图片转为base64限制大小 单位K，超过不转换为base64
+              name: "[name].[ext]",//使用文件本省的文件名和后缀
+              outputPath: "public",//资源输出目录
+            }
           }
         ]
       },
-      //url-loader
       {
-        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-        loader: 'url-loader',
-        options: {
-          // 小于10KB图片，转base64编码
-          limit: 10,
-        }
-      },
-      //文件loader
-      {
-        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        test: /\.(js|jsx)$/,
         use: [
-          'file-loader',
           {
-            loader: 'image-webpack-loader',
-            options: {
-              pngquant: {
-                // 设置品质区间
-                quality: [0.65, 0.90]
-              },
-            }
-          },
+            loader: "babel-loader",//babel-loader babel配置见.babelrc 依赖包  babel-loader @babel/core @babel/preset-env
+          }
         ],
+        exclude: /node_modules/,//排除文件
+      },
+      {
+        test: /\.tsx?$/,
+        use: [
+          { loader: "ts-loader" } //ts-loader ts配置见tsconfig.json 依赖typescript ts-loader
+        ],
+        exclude: /node_modules/,//排除文件
       }
     ]
   },
-
-  //插件配置
-  plugins: [
-
-    //清除文件配置（在重新打包生成html文件之前删除build文件夹）
-    new CleanWebpackPlugin.CleanWebpackPlugin(),
-
-    //文件拷贝
-    new CopyWebpackPlugin({
-      patternqs: [
-        { from: path.resolve(__dirname, 'src/public'), to: path.resolve(__dirname, "build/public") },
-      ],
-    }),
-
-    //html文件配置
-    new HtmlWebpackPlugin({
-      //html模版地址
-      template: "./src/index.html",
-      //js标签在html的位置
-      inject: "body",
-      //标题
-      title: "react-cli",
-      //是否配置hash
-      hash: true,
-      //引用的js文件 entry对象的key（若是多入口 多出口文件才需要，需要多个html则配置多个html-webpack-plugin插件）
-      chunks: ['index'],
-      //压缩
-      minify: {
-        //压缩为一行
-        collapseWhitespace: true,
-        //移除属性双引号
-        removeAttributeQuotes: true
-      },
-    }),
-
-    //分离css文件
-    new MiniCssExtractPlugin({ filename: "[name].css" }),
-
-  ],
-
-  //代码压缩
-  optimization: {
-    minimize: true,
+  optimization: {//代码压缩
+    minimize: true,//是否压缩代码
     minimizer: [
-      //css压缩
-      new CssMinimizerPlugin()
+      new CssMinimizerWebpackPlugin()//css代码压缩
     ]
-  }
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+  },
 
 }
