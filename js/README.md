@@ -26,6 +26,7 @@
     let preTime = 0
     return function(...args){
       let curTime = new Date().getValue()
+      /** 只有在超过了设定时间触发事件才会被执行 */
       if(curTime-preTime>time){
         fn.apply(this,args)
         preTime = curTime

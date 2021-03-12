@@ -50,4 +50,43 @@ ___
 
 ## ts配置 tsconfig.json
 
+## 手写插件
+
+```javascript
+
+  class Plugin {
+
+    /**
+     * 构造函数
+     * @param {options} 获取用户给该插件传入的配置
+     */
+    construcat(options){
+
+    }
+
+    /**
+     * webpack会调用apply函数
+     * @param {compiler} compiler 对象包含了Webpack环境所有的的配置信息，包含options，loaders，plugins这信息
+     */
+    apply(compiler){
+      /** 通过compiler.hooks提供个各种钩子函数实现需要的功能 */
+    }
+  }
+
+```
+
+## 手写loader
+
+```javascript
+
+  /**
+   * loader函数
+   * @param {source} source loader匹配的资源源码
+   */
+  function loader(source) {
+    /** 配合AST抽象语法树进行源码处理 最后返回一个处理后的代码 */
+  }
+
+```
+
 
