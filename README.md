@@ -9,3 +9,6 @@ ___
 
 * js原生相关 笔记
 [js原生](https://github.com/Qolim/notes/tree/main/js)
+
+* redux react-redux
+[redux](https://github.com/Qolim/notes/tree/main/redux)
