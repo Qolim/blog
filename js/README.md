@@ -100,3 +100,11 @@
 * 代码执行过程中先提交一个setTimeout到下一次宏任务队列，再提交一个I/O任务到队列，接着再执行一个setTimeout的话，最后一个setTimeout会提交到第一个setTimeout所在的队列中（会比I/O任务先执行）
 
 * 在setTimeout任务中在执行setTimeout则后面的setTimeout会被提交到下一次宏任务的setTimeout队列中
+
+## new的过程
+
+* 首先创建一个空对象（实力对象）
+
+* 将实例对象的__proto__指向构造函数的prototype，实现原型属性的继承
+
+* 将实例对象作为this传递给构造函数并调用，初始化属性赋值，实现属性继承
