@@ -116,3 +116,38 @@
 * setState的“异步”并不是说内部由异步代码实现，其实本身执行的过程和代码都是同步的，只是合成事件和钩子函数的调用顺序在更新之前，导致在合成事件和钩子函数中没法立马拿到更新后的值，形式了所谓的“异步”，当然可以通过第二个参数 setState(partialState, callback) 中的callback拿到更新后的结果。
 
 * setState的批量更新优化也是建立在“异步”（合成事件、钩子函数）之上的，在原生事件和setTimeout 中不会批量更新，在“异步”中如果对同一个值进行多次setState ，setState 的批量更新策略会对其进行覆盖，取最后一次的执行，如果是同时 setState 多个不同的值，在更新时会对其进行合并批量更新。
+
+## context
+
+* Provider value赋值最好不要直接使用对象赋值，改为使用state中的状态来管理
+
+> 因为父组件如果有更新，value直接使用对象赋值的话会导致生成一个新对象，那么子组件也会更新
+
+## React性能优化
+
+* 类组件
+
+> 使用PureComponent（会对props进行浅比较，决定组件是否渲染）
+
+> 使用shouldComponentUpdate生命周期判断组件是否需要更新
+
+* 函数组件
+
+> 使用React.memo() 同PureComponent
+
+> 使用useMemo useCallback 缓存参数和函数
+
+* map渲染组件时使用唯一key值而不要用index
+
+* 减少使用内联函数（直接卸载jsx中的函数）
+
+* context的value值使用组件中state而不要直接赋值对象
+
+* Router中渲染组件使用render或者children 不要使用component（同样是会导致重复渲染）
+
+* 对代码进行分割React.lazy()懒加载
+
+* webpack配置代码压缩、图片资源压缩、按需加载
+
+* 高频事件根据业务进行防抖节流
+
