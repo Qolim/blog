@@ -108,3 +108,19 @@
 * 将实例对象的__proto__指向构造函数的prototype，实现原型属性的继承
 
 * 将实例对象作为this传递给构造函数并调用，初始化属性赋值，实现属性继承
+
+## class extends 继承原理
+
+> B extends A 的执行过程
+
+* B.prototype.__proto__ =A.prototype
+
+* B.__proto__ =A (B由A构造而来)
+
+* 最后需要继承构造函数里的属性和方法（通过apply(this, arguments)）
+
+## constructor 中的 super()
+
+> 在子类constructor中，super等同于父类的constructor.bind(this)
+
+> 在子类成员函数中super则解析为一个object
