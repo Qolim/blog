@@ -6,3 +6,6 @@ ___
 
 * react 笔记
 [react.note](https://github.com/Qolim/notes/tree/main/react-notes)
+
+* js原生相关 笔记
+[js原生](https://github.com/Qolim/notes/tree/main/js)
