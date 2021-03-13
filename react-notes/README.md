@@ -15,7 +15,7 @@
 
 * 不建议用index作为key（额外消耗性能）
 
-> 如果用index作为key，对节点进行删除操作是，index会发生改变，那么会导致diff算法重新生成节点，不能复用之前的节点
+> 如果用index作为key，对节点进行删除操作时，index会发生改变，那么会导致diff算法重新生成节点，不能复用之前的节点
 
 
 ## ref
@@ -28,11 +28,11 @@
 
 * 可以指定给jsx的dom、也可以指定给class组件可以获取到class组件的实例
 
-* function组件不能直接绑定ref，需要通过 React.forwardRef((props,ref)=>FnComponnet) 高阶组件来转发ref
+* function组件不能直接绑定ref，需要通过 React.forwardRef((props,ref)=>FnComponnet) 函数来转发ref
 
-* 可以用内连函数的方式绑定ref -> ref = {el=>ref.current} 内连函数的方式会导致函数重复执行
+* 可以用内连函数的方式绑定ref -> ref = {el=>ref.current} 
 
-> 内连函数的方式在每次render的时候都会重新生成一个新的函数，会导致重复执行
+> 内连函数的方式会导致函数重复执行，在每次render的时候都会重新生成一个新的函数，浪费性能
 
 * const ref = useRef()  
 
@@ -64,7 +64,7 @@
 
 * static getDerivedStateFromProps(props, state) render方法之前被调用（每次都会被调用）
 
-> 它应返回一个对象来更新 state，如果返回 null 则不更新任何内容
+> 它应返回一个对象来更新 state，如果返回 null 则不更新任何内容，用于需要通过props设定state的情况下
 
 * getSnapshotBeforeUpdate(prevProps, prevState)
 
@@ -72,7 +72,7 @@
 
 > 组件能在发生更改之前从 DOM 中捕获一些信息（例如，滚动位置）
 
-> 此生命周期的任何返回值将作为参数传递给 componentDidUpdate()
+> 此生命周期的返回值将作为参数传递给 componentDidUpdate()
 
 
 ## 事件系统
@@ -83,8 +83,7 @@
 
 * 事件代理
 
-> react中所有事件都被代理到顶层节点，由顶层节点统一处理
-> diff算法的时候可以过滤事件系统，节省性能
+> react中所有事件都被代理到顶层节点，由顶层节点统一处理，节省性能
 
 * 事件映射表
 
@@ -101,21 +100,21 @@
 
 > 生命周期函数中是异步执行
 
-> setTimeout等异步任务下是同步执行
+> setTimeout（异步任务）下是同步执行
 
 * 批量更新
 
-> 在合成事件和生命周期函数中react会对setState创建一个更新队列，最终提交时和对更新进行合并
+> 在合成事件和生命周期函数中react会对setState创建一个更新队列，最终提交时会对更新进行合并
 
-> 原生事件和setTimeout中因为是同步更新的，所以不会覆盖setState的执行
+> 原生事件和setTimeout（异步任务）中因为是同步更新的，所以不会覆盖setState的执行
 
 ## setState总结 
 
-* setState只在合成事件和钩子函数中是“异步”的，在原生事件和 setTimeout 中都是同步的。
+* setState只在合成事件和生命周期函数中是“异步”的，在原生事件和 setTimeout（异步任务） 中都是同步的。
 
 * setState的“异步”并不是说内部由异步代码实现，其实本身执行的过程和代码都是同步的，只是合成事件和钩子函数的调用顺序在更新之前，导致在合成事件和钩子函数中没法立马拿到更新后的值，形式了所谓的“异步”，当然可以通过第二个参数 setState(partialState, callback) 中的callback拿到更新后的结果。
 
-* setState的批量更新优化也是建立在“异步”（合成事件、钩子函数）之上的，在原生事件和setTimeout 中不会批量更新，在“异步”中如果对同一个值进行多次setState ，setState 的批量更新策略会对其进行覆盖，取最后一次的执行，如果是同时 setState 多个不同的值，在更新时会对其进行合并批量更新。
+* setState的批量更新优化也是建立在“异步”（合成事件、钩子函数）之上的，在原生事件和setTimeout（异步任务） 中不会批量更新，在“异步”中如果对同一个值进行多次setState ，setState 的批量更新策略会对其进行覆盖，取最后一次的执行，如果是同时 setState 多个不同的值，在更新时会对其进行合并批量更新。
 
 ## context
 

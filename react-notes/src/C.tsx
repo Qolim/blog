@@ -1,5 +1,11 @@
 import React from "react";
 
+const p = new Promise((res, rej) => {
+  setTimeout(() => {
+    res("111")
+  }, 1000);
+})
+
 export class C extends React.Component {
   state = {
     a: "a",
@@ -9,11 +15,14 @@ export class C extends React.Component {
   componentDidMount() {
     this.setState({ a: "aa" })
     this.setState({ b: "bb" })
+    p.then(res => {
+      this.setState({ a: res })
+      console.log(this.state)
+    })
   }
 
 
   render() {
-    console.log(this.state)
     return <div></div>
   }
 
