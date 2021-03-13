@@ -124,3 +124,46 @@
 > 在子类constructor中，super等同于父类的constructor.bind(this)
 
 > 在子类成员函数中super则解析为一个object
+
+## 发布订阅模式
+
+```typescript
+
+class EventEmitter {
+
+  private events: {
+    [name: string]: ((...args:any[])=>any)[]
+  }
+
+  constructor() {
+    this.events = {}
+  }
+
+  emit(type: string, ...args: any[]) {
+    if (this.events[type]) {
+      this.events[type].forEach(event => event.apply(this, args))
+      return
+    } throw Error("event not found !")
+  }
+
+  addEventListener(type: string, callback: (...args:any[])=>any) {
+    this.events[type] =
+      this.events[type]
+        ? [...this.events[type], callback]
+        : [callback]
+  }
+
+  removeEventListener(type: string, callback: (...args:any[])=>any) {
+    if (this.events[type]) {
+      if (callback) {
+        this.events[type] = this.events[type].filter(event => event !== callback)
+      } else {
+        this.events[type] = null
+      }
+      return
+    }
+    throw Error("event not found!")
+  }
+
+}
+```
