@@ -51,8 +51,8 @@ function applyMiddleware() {
         getState: store.getState,
         /** 
          * 非常重要的一段代码
-         * 传递给中间件的dispatch方法 是一个函数 返回之间创建的dispatch函数的执行 
-         * 这里形成了一个闭包 这个dispatch函数是对外部创建的占位用的dispatch函数的引用 
+         * 传递给中间件的dispatch方法 是一个函数 返回上面创建的占位dispatch函数的执行 
+         * 这里形成了一个闭包 这个dispatch是对外部创建的占位用的dispatch的引用 
          * */
         dispatch: function dispatch() {
           return _dispatch.apply(void 0, arguments);
@@ -64,7 +64,7 @@ function applyMiddleware() {
        * 对中间件进行遍历执行 
        * 传入上面定义的参数 
        * 拿到执行后的中间件列表
-       * 注意这里传入的dispatch是占位dispatch 
+       * 注意这里传入的dispatch是闭包中的占位用dispatch 
        * */
       var chain = middlewares.map(function (middleware) {
         return middleware(middlewareAPI);
@@ -72,10 +72,10 @@ function applyMiddleware() {
 
       /** 
        * 对中间件的执行结果进行合并的，
-       * 传入初始的原生dispatch 
-       * 并将最终生成的新的dispatch赋值给之前占位用的dispatch
+       * 初始传入的原生dispatch 
+       * 并将最终生成改造后的dispatch赋值给之前占位用的dispatch
        * 因为在之前传入中间件的dispatch是一个闭包函数对占位diaptch的引用
-       * 所以这里对占位dispatch重新赋值 会更新传入中间件的dispatch方法
+       * 所以这里对占位dispatch重新赋值 会更新传入中间件的dispatch
        * */
       _dispatch = compose.apply(void 0, chain)(store.dispatch);
 
@@ -100,8 +100,8 @@ function applyMiddleware() {
     /** 
      * 中间件函数，接受redux传递过来的getState和dispatch
      * 这个dispatch在redux-applyMiddleware函数内部一开始是一个占位用dispatch，
-     * 等所中间件执行完之后会变成中间件改造后的dispatch
-     *  如果执行thunk一个中间件，也就是thunk函数内部返回的第二层函数
+     * 等所有中间件执行完之后会变成中间件改造后的dispatch
+     * 如果只执行thunk一个中间件，那么这个dispatch也就是thunk函数内部返回的第二层函数
      * */
     function thunk({getState,dispatch}){
       /**
@@ -110,8 +110,8 @@ function applyMiddleware() {
        **/
       return function(next){
         /**
-         * 第三层函数是最终传递给下一个中间件的dispatch方法（若没有下一个中间件则直接是用户使用dispatch）
-         * 判断用户传入的action是否是函数，如果是则执行action并传入dispatch（
+         * 第三层函数是最终传递给下一个中间件的dispatch（若没有下一个中间件则直接是用户使用的dispatch）
+         * 判断用户传入的action是否是函数，如果是，则执行action并传入dispatch（
          * 如果后面没有中间件了，那么这个dispatch其实就是这个函数自身
          * ）和getState
          **/
