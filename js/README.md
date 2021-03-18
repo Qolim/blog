@@ -167,3 +167,85 @@ class EventEmitter {
 
 }
 ```
+
+## 箭头函数和普通函数的区别
+
+1. 箭头函数中的this指向的是创建时外层函数执行上下文中的this，箭头函数的this是不会改变的，也无法通过apply、call和bind来改变this指向
+3. 箭头函数没有自己的arguments，在箭头函数中使用argumens会去外层函数的执行上下文中取。
+2. 箭头函数不能用作构造函数
+4. 箭头函数没有prototype属性
+
+## 手写一个深拷贝（解决循环依赖等问题）
+```javascript
+  
+  /** 深拷贝 */
+  function deepCopy(target) {
+
+    /** 此数组解决了循环引用和相同引用的问题，它存放已经递归到的目标对象 */
+    let copyed_objs = [];
+
+    function _deepCopy(target) {
+
+      /** 非对象直接返回 */
+      if ((typeof target !== 'object') || !target)
+        return target;
+
+      /** 如果在copyed_objs中找到了target，直接返回找到的target */
+      let copyd_objs_index = copyed_objs.findIndex(item => item.target === target)
+      if (copyd_objs_index !== -1)
+        return copyed_objs[copyd_objs_index].copyTarget
+
+      /** 拷贝对象 */
+      let obj = {};
+      /** 如果是数组则赋值为数组 */
+      if (Array.isArray(target))
+        obj = [];
+
+      /** 将当前对象和当前对象的拷贝对象放进copyed_objs中 */
+      copyed_objs.push({ target, copyTarget: obj })
+
+      /** 遍历当前对象的所有key值，依次对其进行拷贝 */
+      Object.keys(target).forEach(key => {
+        obj[key] = _deepCopy(target[key]);
+      });
+      return obj;
+
+    }
+
+    return _deepCopy(target);
+  }
+  
+```
+
+## async await 实现原理
+async await 是基于generator函数封装的 相当于一个自带执行器的generator函数
+generator函数返回一个迭代器对象，需要一个执行器对这个迭代器对象进行执行(next())方法
+
+## 迭代器对象
+
+* 包含一个名为[Symbol.iterator]的方法，该方法必须返回一个带有next方法的对象
+* next方法需要返回一个对象，包含value的done两个属性，value表示下一次执行返回的值，done表示是否执行完成
+
+```javascript
+  const obj = {
+    from: 1,
+    to: 5,
+    [Symbol.iterator]() {
+      let { from, to } = this
+      return {
+        next() {
+          from++
+          return from > to + 1 ? {
+            done: true
+          } : {
+            done: false,
+            value: from - 1
+          }
+        }
+      }
+    }
+  }
+  for (let a of obj) {
+    console.log(a)
+  }
+```
